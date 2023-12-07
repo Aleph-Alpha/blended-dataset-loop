@@ -11,19 +11,31 @@ struct Result {
     result: Vec<Vec<usize>>
 }
 
-fn sample(number_to_sample: Vec<usize>, filename: &str) {
+#[derive(serde::Serialize)]
+struct Metadata {
+    dtype: String,
+    total_count: u64,
+    shape: [usize; 2]
+}
+
+fn sample(number_to_sample: Vec<usize>, prefix_path: &str) {
+    // Write number to sample
+    let input_json_filepath = format!("{prefix_path}.input.json");
+    let input_json_writer = BufWriter::new(File::create(input_json_filepath).unwrap());
+    serde_json::to_writer(input_json_writer, &number_to_sample).unwrap();
 
     let mut number_sampled: Vec<usize> = vec![0; number_to_sample.len()];
     let mut proportion_sampled: Vec<f64> = vec![0.0; number_to_sample.len()];
 
     let total_count: usize = number_to_sample.iter().copied().sum::<usize>();
 
-    let mut result: Vec<Vec<usize>> = Vec::with_capacity(total_count);
+    let bin_filename = format!("{prefix_path}.result.bin");
+    let mut result_writer = BufWriter::new(File::create(bin_filename).unwrap());
 
     for _ in tqdm(0..total_count) {
-        
+
         // find smallest represenation
-        let (dataset_index, _argmax) = proportion_sampled.argminmax();  
+        let (dataset_index, _argmax) = proportion_sampled.argminmax();
 
 
         // add representation from dataset
@@ -33,21 +45,24 @@ fn sample(number_to_sample: Vec<usize>, filename: &str) {
         number_sampled[dataset_index] += 1;
         proportion_sampled[dataset_index] = (number_sampled[dataset_index] as f64) / number_to_sample[dataset_index] as f64;
 
-        result.push(vec![dataset_index, index_next]);
-
+        result_writer.write_all(&(dataset_index as u64).to_le_bytes()).unwrap();
+        result_writer.write_all(&(index_next as u64).to_le_bytes()).unwrap();
     }
 
     assert!(total_count == number_sampled.iter().copied().sum::<usize>());
     number_to_sample.iter().zip(number_sampled.iter()).for_each(|(a, b)| assert_eq!(a, b));
 
+    // flush
+    result_writer.flush().unwrap();
 
-    // write
-    let file = File::create(filename).unwrap();
-    let mut writer = BufWriter::new(file);
-    serde_json::to_writer(&mut writer, &Result {
-        number_to_sample, result
+    // write metadata
+    let meta_filename = format!("{prefix_path}.meta.json");
+    let meta_writer = BufWriter::new(File::create(meta_filename).unwrap());
+    serde_json::to_writer(meta_writer, &Metadata {
+        total_count: total_count as u64,
+        dtype: "uint64".to_string(),
+        shape: [total_count, 2],
     }).unwrap();
-    writer.flush().unwrap();
 }
 
 fn main() {
@@ -61,10 +76,11 @@ fn main() {
     number_to_sample_4096.iter().zip(number_to_sample_8192.iter()).for_each(|(a, b)| assert!(a > b));
 
     let example: Vec<usize> = vec![1, 2, 3, 4];
-    
-    sample(example, "/pfss/alephalpha/dataset-v2/tokenized_unigram_128k_multilingual/blended_dataset_tmp_cache/example.json");
-    sample(number_to_sample_2048, "/pfss/alephalpha/dataset-v2/tokenized_unigram_128k_multilingual/blended_dataset_tmp_cache/2048.json");
-    sample(number_to_sample_4096, "/pfss/alephalpha/dataset-v2/tokenized_unigram_128k_multilingual/blended_dataset_tmp_cache/4096.json");
-    sample(number_to_sample_8192, "/pfss/alephalpha/dataset-v2/tokenized_unigram_128k_multilingual/blended_dataset_tmp_cache/8192.json");
-   
+
+    sample(example, "./example");
+
+    // sample(example, "/pfss/alephalpha/dataset-v2/tokenized_unigram_128k_multilingual/blended_dataset_tmp_cache/example");
+    // sample(number_to_sample_2048, "/pfss/alephalpha/dataset-v2/tokenized_unigram_128k_multilingual/blended_dataset_tmp_cache/2048");
+    // sample(number_to_sample_4096, "/pfss/alephalpha/dataset-v2/tokenized_unigram_128k_multilingual/blended_dataset_tmp_cache/4096");
+    // sample(number_to_sample_8192, "/pfss/alephalpha/dataset-v2/tokenized_unigram_128k_multilingual/blended_dataset_tmp_cache/8192");
 }
