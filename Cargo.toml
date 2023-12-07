@@ -1,0 +1,11 @@
+[package]
+name = "blended-loop"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+argminmax = "0.6.1"
+serde_json = "1.0.108"
+tqdm = "0.6.0"
