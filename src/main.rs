@@ -3,6 +3,13 @@ use argminmax::ArgMinMax;  // import trait
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use tqdm::tqdm;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct Result {
+    number_to_sample: Vec<usize>,
+    result: Vec<Vec<usize>>
+}
 
 fn sample(number_to_sample: Vec<usize>, filename: &str) {
 
@@ -37,7 +44,9 @@ fn sample(number_to_sample: Vec<usize>, filename: &str) {
     // write
     let file = File::create(filename).unwrap();
     let mut writer = BufWriter::new(file);
-    serde_json::to_writer(&mut writer, &result).unwrap();
+    serde_json::to_writer(&mut writer, &Result {
+        number_to_sample, result
+    }).unwrap();
     writer.flush().unwrap();
 }
 

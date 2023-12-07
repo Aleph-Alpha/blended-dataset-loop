@@ -34,6 +34,7 @@ name = "blended-loop"
 version = "0.1.0"
 dependencies = [
  "argminmax",
+ "serde",
  "serde_json",
  "tqdm",
 ]
