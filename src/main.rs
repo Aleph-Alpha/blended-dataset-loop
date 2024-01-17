@@ -29,7 +29,7 @@ fn sample(number_to_sample: Vec<usize>, prefix_path: &str) {
 
     let total_count: usize = number_to_sample.iter().copied().sum::<usize>();
 
-    let bin_filename = format!("{prefix_path}.result.bin");
+    let bin_filename = format!("{prefix_path}.bin");
     let mut result_writer = BufWriter::new(File::create(bin_filename).unwrap());
 
     for _ in tqdm(0..total_count) {
