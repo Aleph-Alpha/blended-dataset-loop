@@ -15,6 +15,32 @@ test:
     - pytest -s tests
     - cargo test
 
+lint_rust:
+  stage: test
+  interruptible: true
+  image:
+    name: ghcr.io/pyo3/maturin
+    entrypoint:
+      - ""
+  script:
+    - rustup override set nightly-2024-02-03
+    - rustup component add rustfmt clippy
+    - cargo fmt --all --check
+    - cargo clippy --all -- -Dwarnings
+
+lint_python:
+  stage: test
+  interruptible: true
+  image:
+    name: ghcr.io/pyo3/maturin
+    entrypoint:
+      - ""
+  script:
+    - rustup override set nightly-2024-02-03
+    - pip install '.[dev]'
+    - black --check python
+    - black --check tests
+
 package:
   stage: package
   image:
