@@ -14,7 +14,7 @@ dynamic = ["version"]
 dependencies = ["numpy", "cffi"]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "black", "mypy"]
 
 [tool.maturin]
 bindings = "cffi"

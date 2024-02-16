@@ -70,7 +70,7 @@ fn sample_impl(number_to_sample: &[u64], prefix_path: &str) {
             .write_all(&(dataset_index as u64).to_le_bytes())
             .expect("Failed to write blended data set index bin file.");
         result_writer
-            .write_all(&(sample_index as u64).to_le_bytes())
+            .write_all(&sample_index.to_le_bytes())
             .expect("Failed to write blended data set index bin file.");
     }
 
