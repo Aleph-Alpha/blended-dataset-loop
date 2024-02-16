@@ -19,9 +19,16 @@ conda create -n blended_dataset_loop python=3.9 -y
 conda activate blended_dataset_loop
 ```
 
+Install Rust nightly
+
+```sh
+rustup override set nightly-2024-02-03
+```
+
 Install the Python dev-dependencies:
 
 ```sh
+pip install 'maturin[patchelf]'
 pip install '.[dev]'
 ```
 

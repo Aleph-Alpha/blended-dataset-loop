@@ -11,16 +11,11 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
-dependencies = [
-    "numpy",
-    "cffi"
-]
+dependencies = ["numpy", "cffi"]
 
 [project.optional-dependencies]
-dev = [
-    "maturin[patchelf]",
-    "pytest"
-]
+dev = ["pytest"]
 
 [tool.maturin]
 bindings = "cffi"
+python-source = "python"
