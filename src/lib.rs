@@ -21,22 +21,23 @@ struct Metadata {
 
 /// SAFETY: The following invariants must be ensured from the Python wrapper:
 /// * `number_to_sample` must point to a buffer of length `n_datasets`.
-/// * `prefix_path` must point to a buffer of length `prefix_path_len` containing valid UTF-8 data
+/// * `cache_filename_stem` must point to a buffer of length `cache_filename_stem_len` containing valid UTF-8 data
 #[no_mangle]
 extern "C" fn sample(
     number_to_sample: *const u64,
     n_datasets: usize,
-    prefix_path: *const u8,
-    prefix_path_len: usize,
+    cache_filename_stem: *const u8,
+    cache_filename_stem_len: usize,
 ) {
     let number_to_sample = unsafe { std::slice::from_raw_parts(number_to_sample, n_datasets) };
-    let prefix_path_slice = unsafe { std::slice::from_raw_parts(prefix_path, prefix_path_len) };
-    let prefix_path = unsafe { std::str::from_utf8_unchecked(prefix_path_slice) };
-    sample_impl(number_to_sample, prefix_path);
+    let cache_filename_stem_slice =
+        unsafe { std::slice::from_raw_parts(cache_filename_stem, cache_filename_stem_len) };
+    let cache_filename_stem = unsafe { std::str::from_utf8_unchecked(cache_filename_stem_slice) };
+    sample_impl(number_to_sample, cache_filename_stem);
 }
 
-fn sample_impl(number_to_sample: &[u64], prefix_path: &str) {
-    let input_json_filepath = format!("{prefix_path}.input.json");
+fn sample_impl(number_to_sample: &[u64], cache_filename_stem: &str) {
+    let input_json_filepath = format!("{cache_filename_stem}.input.json");
     let input_json_writer = BufWriter::new(
         File::create(input_json_filepath)
             .expect("Failed to create blended data set index input.json file."),
@@ -49,7 +50,7 @@ fn sample_impl(number_to_sample: &[u64], prefix_path: &str) {
 
     let total_count = number_to_sample.iter().copied().sum::<u64>() as usize;
 
-    let bin_filename = format!("{prefix_path}.bin");
+    let bin_filename = format!("{cache_filename_stem}.bin");
     let mut result_writer = BufWriter::new(
         File::create(bin_filename).expect("Failed to create blended data set index bin file."),
     );
@@ -86,7 +87,7 @@ fn sample_impl(number_to_sample: &[u64], prefix_path: &str) {
         .expect("Failed to flush blended data set index bin file.");
 
     // write metadata
-    let meta_filename = format!("{prefix_path}.meta.json");
+    let meta_filename = format!("{cache_filename_stem}.meta.json");
     let meta_writer = BufWriter::new(
         File::create(meta_filename).expect("Failed to create blended data set meta.json file"),
     );
