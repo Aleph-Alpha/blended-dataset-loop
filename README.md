@@ -1,6 +1,7 @@
 # Blended Dataset Loop
 
-This repository contains a simple loop to compute a balanced ordering of indices to train on.
+This repository contains a simple loop to compute a balanced ordering of dataset indices to train on.
+The resulting ordering ensures the data distribution is similar among batches.
 The loop is implemented in Rust for performance reasons and can be consumed as part of a Python package.
 
 The package uses `cffi` (rather than e.g. `PyO3`) in order to be compatible with different Python versions.
