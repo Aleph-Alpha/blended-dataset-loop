@@ -1,6 +1,6 @@
 /target
 /venv
-blended_dataset_loop/blended_dataset_loop
+python/blended_dataset_loop/blended_dataset_loop
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
