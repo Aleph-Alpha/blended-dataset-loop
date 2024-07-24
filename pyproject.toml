@@ -1,0 +1,21 @@
+[build-system]
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "blended_dataset_loop"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dynamic = ["version"]
+dependencies = ["numpy", "cffi"]
+
+[project.optional-dependencies]
+dev = ["pytest", "black~=24.0", "mypy"]
+
+[tool.maturin]
+bindings = "cffi"
+python-source = "python"

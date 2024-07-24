@@ -1,0 +1,103 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    tags: ["*"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          rust-toolchain: nightly-2024-02-03
+          target: ${{ matrix.target }}
+          args: --release --out dist --find-interpreter
+          sccache: "true"
+          manylinux: auto
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+  windows:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        target: [x64, x86]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          architecture: ${{ matrix.target }}
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          rust-toolchain: nightly-2024-02-03
+          target: ${{ matrix.target }}
+          args: --release --out dist --find-interpreter
+          sccache: "true"
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+  macos:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          rust-toolchain: nightly-2024-02-03
+          target: ${{ matrix.target }}
+          args: --release --out dist --find-interpreter
+          sccache: "true"
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+  sdist:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build sdist
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist
+      - name: Upload sdist
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
