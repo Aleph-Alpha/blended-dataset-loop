@@ -106,9 +106,6 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     needs: [sdist, macos, windows, linux]
-    environment:
-#        name: release
-      url: https://test.pypi.org/p/blended-dataset-loop
     permissions:
       id-token: write
     steps:
